@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>First</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+	</head>
+
+	<style type="text/css">
+		.collapse {
+			padding-left: 10px;
+			border-left-color: black;
+			border-left-style: solid;
+			border-left-width: 1px;
+		}
+	</style>
+
+	<body ng-app="myApp" ng-controller="myCtrl">
+		<h1>Hello World!</h1>
+
+		<div ng-repeat="e in myWelcome">
+			<a class="btn" data-toggle="collapse" href=".collapseExample{{e.id}}">
+				{{e.description}}
+			</a>
+
+			<div class="collapse collapseExample{{e.id}}">
+				<div ng-repeat="ee in e.child">
+					<a class="btn" data-toggle="collapse" href=".collapseExample{{ee.id}}">
+						{{ee.description}}
+					</a>
+
+					<div class="collapse collapseExample{{ee.id}}">
+						<div ng-repeat="eee in ee.child">
+							<a class="btn" data-toggle="collapse" href=".collapseExample{{eee.id}}">
+								{{eee.description}}
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+	</body>
+
+<script>
+	var app = angular.module('myApp', []);
+
+	app.controller('myCtrl', function($scope, $http) {
+
+		$http.get("/book")
+		.then(function(response) {
+			$scope.myWelcome = recurs(response.data);
+		});
+	});
+
+	function recurs (obj) {
+		var result = []
+
+		for (var i = 0; i < obj.length; i++) {
+			if(obj[i].idPere == 0) {
+				var temp = obj[i];
+
+				temp.child = [];
+				findSons(obj[i].child, obj, obj[i].id)
+
+				result.push(temp)
+			}
+		}
+		return result
+	}
+
+	function findSons (result, obj, Pere) {
+		for (var i = 0; i < obj.length; i++) {
+			if(obj[i].idPere == Pere) {
+				obj[i].child = []
+				findSons(obj[i].child, obj, obj[i].id)
+
+				result.push(obj[i])
+			}
+		}
+	}
+</script>
+</html>
